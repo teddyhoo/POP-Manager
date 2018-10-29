@@ -1,0 +1,122 @@
+Network Requests
+----------------------------------------------------------------------------------------
+
+Script: 				client-own-scheduler.php
+
+Params:			timeframes
+						servicetypes
+						surcharges
+						startdate
+						enddate
+
+Date format: 	yyyy-MM-dd
+
+Desc:				list of visits for pet owner for a given time period
+------------------------------------------------------------------
+Script: 				native-prov-multiday-list.php
+
+Params:			loginid
+						password
+						start
+						end
+
+Date format: 	yyyy-MM-dd
+
+Desc:				list of visits for sitter for a given time period
+
+Receive visit info:
+
+{
+	appointmentid: '206515',
+    service: 'Monthly Contract Dog Walk  2 Dogs',
+    completed: null,
+    arrived: null,
+    canceled: null,
+    timeofday: '12:00 pm-2:00 pm',
+    providerptr: '36',
+    sitter: 'Geoff Howell',
+    pets: 'All Pets',
+    totalRate: '0.00',
+    clientptr: '264',
+    clientname: 'Juan Q. Buchheit',
+    starttime: '12:00:00',
+    endtime: '14:00:00',
+    highpriority: null,
+    note: null,
+    pendingchange: null,
+    petNames: 'Felony, Thor',
+    month3Date: 'Oct 16',
+    longDayAndDate: 'Tuesday, October 16',
+    shortDate: '10/16/2018',
+    shortDateAndDay: '10/16/2018 Tue',
+    shortNaturalDate: '10/16/2018',
+    endDateTime: '2018-10-16 14:00:00',
+    status: 'late',
+    lat: '40.7218',
+    lon: '-73.8415'
+}
+------------------------------------------------------------------
+Script:				client-own-profile-data.php
+
+Params:			---NONE----
+
+Desc:				pet owner profile for a single pet owner, identical to
+						one received from the natvie-prov-multiday package
+------------------------------------------------------------------
+Script:				pet-photo.php
+
+Param:				{petid}
+						version=display [HIGH QUALITY IMAGE, OTHERWISE NONE]
+
+Desc:				Link to pet profile photo
+------------------------------------------------------------------
+Script:				PO-cancel-visit-request
+
+Param:				appointmentid
+						note.  [OPTIONAL]
+
+Desc:				Pet owner portal request to cancel an appointed visit
+------------------------------------------------------------------
+Script:				PO-uncancel-visit-request
+
+Param:				appointmentid
+						note.  [OPTIONAL]
+
+Desc:				Pet owner portal request to uncancel an appointed visit
+------------------------------------------------------------------
+Script:				PO-change-visit-request
+
+Param:				appointmentid
+						type  [TIME WINDOW, SERVICE, OTHER]
+						note.  [OPTIONAL]
+
+Desc:				Pet owner portal request to change an appointed visit
+------------------------------------------------------------------
+Script: 				request-list-sitters-and-info.php
+
+Params:			bizid
+
+Returns:			[{sitterid, sitternickname, sitterfirstname, sitterlastname, sitterlat, sitterlon,sittertimeoff: [timeoffDescrip, timeOffDescrip, ...]}]
+
+Desc:				a list of sitters for a particular business
+------------------------------------------------------------------
+Script:				PO-request-visits
+
+Param:				[
+							{
+								visitDate : 		yyyy-MM-dd
+								timewindow: 	[TIME WINDOW ITEM ID]
+								service:			[SERVICE ID CODE]
+								pets:					[PET1, PET2, ... , N]
+								charge:			[VISIT CHARGE + TAX + SURCHARGE]
+
+
+							}
+						]
+
+Desc:				Pet owner portal request NEW visit(s). Each visit item
+						is contained in a separate dictionary.
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+

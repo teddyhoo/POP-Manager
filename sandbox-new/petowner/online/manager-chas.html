@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>LeashTime Manager Dashboard</title>
+
+        <!-- BEGIN META -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="per_sitting_businesses">
+        <meta name="description" content="PetOwner PetCare Management | Health & Wellness.  ">
+        <!-- END META -->
+
+        <!-- BEGIN FRAMEWORK STYLESHEETS -->
+        <link href='http://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900' rel='stylesheet' type='text/css' />
+        <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/bootstrap.css?1422792965" />
+        <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/materialadmin.css?1425466319" />
+        <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/font-awesome.min.css?1422529194" />
+        <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/material-design-iconic-font.min.css?1421434286" />
+
+        <!-- BEGIN PLUGIN STYLESHEETS -->
+        <link type="text/css" rel="stylesheet" href="../../assets/css/libs/fullcalendar/fullcalendar-leashtime.css">
+
+        <!-- BEGIN LEASHTIME STYLESHEETS -->
+        <link href="../../assets/css/leashtime-theme/colors.css" rel="stylesheet" type="text/css">
+        <link href="../../assets/css/leashtime-theme/layout.css" rel="stylesheet" type="text/css">
+        <link href="../../assets/css/leashtime-theme/lt-stlyes.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/petowner_portal.css" rel="stylesheet" type="text/css">
+        <!-- END STYLESHEETS -->
+
+
+        <script src='../../../modules/LT.js'></script>
+        <script src='../../../modules/LTMGR.js'></script>
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+        <style>
+            #marker {
+                background-image: url('../../../images/dog-marker.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+            #marker-arrived {
+                    background-image: url('../../../images/arrive.png');
+                    background-size: cover;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+            }
+            #marker1 {
+                    background-image: url('../../../images/sitter1.png');
+                    background-size: cover;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+            }
+            #marker2 {
+                    background-image: url('../../../images/sitter2.png');
+                    background-size: cover;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+            }
+            #marker3{
+                    background-image: url('../../../images/sitter3.png');
+                    background-size: cover;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+            }
+            #marker4{
+                    background-image: url('../../../images/sitter4.png');
+                    background-size: cover;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+            }
+            #marker-future {
+                background-image: url('../../../images/dog-marker.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            #marker-late {
+                background-image: url('../../../images/yellow-flag-begin@3x.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            #marker-complete {
+                background-image: url('../../../images/check-mark-green@3x.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            #marker-canceled {
+                background-image: url('../../../images/red-dot@3x.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            #marker-visitreport {
+                background-image: url('../../../images/note-icon@3x.png');
+                background-size: cover;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            .mapboxgl-popup {
+                max-width: 400px;
+            }
+
+            .button {
+                display: inline-block;
+                border: none;
+                padding: 1rem 2rem;
+                margin: 0;
+                text-decoration: none;
+                background: #0069ed;
+                color: #000000;
+                font-family: sans-serif;
+                font-size: 1rem;
+                cursor: pointer;
+                text-align: center;
+                transition: background 250ms ease-in-out,
+                    transform 150ms ease;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+            }
+            li {
+                list-style: none;
+            }
+        </style>
+
+    </head>
+
+
+    <body class="header-fixed">
+
+        <!--/////////////// BEGIN HEADER ///////////////-->
+        <header id="header">
+            <div class="headerbar blue">
+                <!-- HEADER BRANDING -->
+                <div class="headerbar-left hidden-on-mobile">
+                    <ul class="header-nav header-nav-options">
+                        <li style="float: left;">
+                            <a class="btn btn-icon-toggle text-center" data-toggle="menubar" href="javascript:void(0);">
+                                <i class=" fa fa-paw white-text fa-2x"></i>
+                            </a>
+                        </li>
+                        <li style="line-height:1;padding:24px 0">
+                            <div class="brand-holder">
+                                <span class="text-lg white-text " style="margin:0;padding-left: 12px">CARE<strong> MANAGER</strong>™<span style="font-weight: 100;opacity: .8">  |  SITTER OPERATION</span></span>
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- HEADER MENU -->
+                <div class="headerbar-right">
+                    <!-- START NAV DROP -->
+                    <div class="headerbar-right">
+                        <!-- MAIN MENU -->
+
+                    </div>
+                    <!--end #header-navbar-collapse -->
+
+                </div>
+            </div>
+        </header>
+        <!-- END HEADER NAV-->
+
+        <!-- BEGIN OFFCANVAS HOLDER LEFT -->
+        <div class="offcanvas"></div>
+        <!-- END OFFCANVAS HOLDER LEFT -->
+
+        <!-- ////////////////// BEGIN MAIN CONTENT  ////////////////////-->
+        <div id="content">
+            <!-- BEGIN BASIC MAP -->
+            <div class="row">
+                <div class="col-sm-2 small-padding no-margin">
+                    <div id="sitterList" class="sitterListView full-bleed styled-info"></div>
+                </div>
+
+                <div class="col-sm-8 full-bleed no-padding no-margin" style="height: 700px">
+                    <div class="card transparent no-margin no-padding">
+                        <div id='map' class="mapView border-gray" style="height: 500px"></div>
+                    </div>
+                    <div id="filterOptions" class="filterStatus ">
+                        <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus btn btn-default-bright" id="late" onclick="filterMapViewByVisitStatus('late')" role="button" checked>Late</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="incomplete" onclick="filterMapViewByVisitStatus('incomplete')" checked>Incomplete</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="completed" onclick="filterMapViewByVisitStatus('completed')">Completed</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="visitreport" onclick="filterMapViewByVisitStatus('visitreport')">Visit Report</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="canceled" onclick="filterMapViewByVisitStatus('canceled')">Canceled</a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-2 full-bleed small-padding no-margin">
+                    <div id="visitList" class="visitListView"></div>
+
+                </div>
+            </div>
+        </div>
+    <script>
+       
+        var petImages = []
+        var mapMarkers = [];
+        var statusVisit = {
+            'future' : 'on',
+            'late' : 'on',
+            'canceled' : 'off',
+            'completed' : 'off',
+            'visitreport' : 'off'
+        };
+
+        var fullDate = getFullDate();
+        LTMGR.getVisits('',fullDate,fullDate);
+
+        var sitterNameVisits  = setInterval(()=> {
+
+            let allVisits = LTMGR.getVisitList();
+            buildSitterButtons(allVisits);
+
+            let lastVisit = allVisits[0];
+            map.flyTo({
+                center: [lastVisit.lon, lastVisit.lat],
+                zoom: 16
+            });
+            clearInterval(sitterNameVisits);
+        }, 3000);
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v9',
+            center : ([-77.888,38.1111]),
+            zoom: 9
+        });
+
+        map.on("load",()=>{
+        });
+
+        function getFullDate() {
+            var todayDate = new Date();
+            let todayMonth = todayDate.getMonth()+1;
+            let todayYear = todayDate.getFullYear();
+            let todayDay = todayDate.getDate();
+            return todayYear+'-'+todayMonth+'-'+todayDay;
+        }
+        function buildSitterButtons(allSitterVisits) {
+            // SET SITTER COUNT TO 0, INCREMENT AS WE ITERATE THRU SITTER LIST
+            // THE COUNT VALUE IS USED AS LOOKUP IN ARRAY OF ICONS, sitterIcons[]
+            // THE ICON IN THE ARRAY IS UNIQUE AND REPRESENTS A PARTICULAR SITTER
+
+            var sitterIcons = ["marker1", "marker2","marker3","marker4"];
+            let sitterCount = parseInt(0);
+
+            // LIST OF SITTERS WITH KEY=SITTER ID AND VALUE=SITTER NAME
+            let sitters = LTMGR.getSitters();
+            let sitterKeys = Object.keys(sitters);
+
+            // ITERATE THRU SITTER IDS
+            sitterKeys.forEach((sitterID)=> {
+                // LEFT NAV BUTTONS FOR EACH SITTER
+                let sitterListDiv = document.getElementById("sitterList");
+                let sitterFilterButton = document.createElement("button");
+                sitterFilterButton.innerHTML = "<button type=\"button\" id=" + sitterID + " class=\"btn btn-block transparent\" onclick=showVisitBySitter("+sitterID+")><span class=\"pull-left\"><i class=\"fa fa-paw\"></i></span> &nbsp; " + sitters[sitterID] + "</button>";
+                sitterListDiv.appendChild(sitterFilterButton);
+
+                allSitterVisits.forEach((visitDetails)=> {
+                    if (sitterID == visitDetails.sitterID) {
+                        createMapMarker(visitDetails, sitterIcons[sitterCount]);
+                    }
+                });
+
+                sitterCount = sitterCount + 1;
+
+            });
+        }
+
+        function createMapMarker(visitInfo, markerIcon) {
+
+            let el = document.createElement('div');
+            let latitude = parseFloat(visitInfo.lat);
+            let longitude = parseFloat(visitInfo.lon);
+            let popupView = createPopupView(visitInfo);
+
+            el.class = 'mapMarker';
+            
+            if (visitInfo.status == 'completed') {
+                el.id = 'marker-complete';
+            } else if (visitInfo.status == 'canceled') {
+                el.id = 'marker-canceled';
+            } else if (visitInfo.status == 'late') {
+                el.id = 'marker-late';
+            } else if (visitInfo.status == 'arrived') {
+                el.id = 'marker-arrived'
+            } else if (visitInfo.status == 'future' || visitInfo.status == 'incomplete') {
+                el.id = markerIcon;
+            }
+
+            let popup = new mapboxgl.Popup({offset : 25})
+                .setHTML(popupView);
+
+            if (latitude > 90 || latitude < -90 ) {
+                console.log("Lat error");
+            } else {
+                let marker = new mapboxgl.Marker(el)
+                    .setLngLat([longitude,latitude])
+                    .setPopup(popup)
+                    .addTo(map);
+
+                mapMarkers.push(marker);
+            }
+        }
+
+        function fetchPetPhoto() {
+            console.log('Popup on open event triggered');
+        }
+
+        function createPopupView(visitInfo, divElement) {
+
+            let imageComponent = '<img src=\"../../../images/lilly-tucker.jpg\" id=\"petPhoto\" width=100 height=100 onopen=fetchPetPhoto()>';
+            let popupBasicInfo = imageComponent + '<h1>'+visitInfo.pets+'</h1>';
+            popupBasicInfo += '<p>'+visitInfo.sitterName +'</p>';
+            popupBasicInfo += '<p>'+visitInfo.clientName+'</p>';
+            popupBasicInfo += '<p>'+visitInfo.service+'</p>';
+            
+            var listClients = LTMGR.getClientList();
+
+            listClients.forEach((client) => {
+                if(visitInfo.clientID == client.client_id) {
+                    popupBasicInfo += '<p>' + client.street1 + ', ' +client.street2;
+                    client.pets.forEach((pet)=> {
+                        console.log('Getting pet photo for client: ' + client.petOwnerName);
+                        //LTMGR.getPetPhoto(pet.petID);
+                    });
+                }
+            })
+            if (visitInfo.status == 'completed') {
+                popupBasicInfo += '<p><img src=\"../../../images/check-mark-green@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+                popupBasicInfo += '<p>Started: ' + visitInfo.starttime + ' - ' + visitInfo.endtime + '</p>';
+            } else if (visitInfo.status == 'late') {
+                popupBasicInfo += '<p><img src=\"../../../images/yellow-flag-begin@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+            } else if (visitInfo.status == 'future') {
+                popupBasicInfo += '<p><img src=\"../../../images/clockicon@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+            } else if (visitInfo.status == 'canceled') {
+                popupBasicInfo += '<p><img src=\"../../../images/x-mark-red@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+            }
+
+            if (visitInfo.visitNote != null) {
+                popupBasicInfo += "<p><img src=\"../../../images/postit\-20x20.png\" width=20 height=20>"+visitInfo.visitNote;
+            }
+
+            popupBasicInfo += '<p><img src=\"../../../images/messagebubble128x128@3x.png\" width=20 height=20>&nbsp&nbsp<input type=\"text\" name=\"messageSitter\" id=\"messageSitter\"></p>';
+
+            return popupBasicInfo;
+        }
+        function filterMapViewByVisitStatus(filterStatus) {
+
+            if (statusVisit[filterStatus] == 'on') {
+                statusVisit[filterStatus] =  'off';
+            } else {
+                statusVisit[filterStatus] = 'on';
+            }
+
+            let visitFilterArray = [];
+
+            mapMarkers.forEach((marker)=>{
+                marker.remove();
+            });
+
+            let allVisits = LTMGR.getVisitList();
+            let statKeys = Object.keys(statusVisit);
+
+            allVisits.forEach((visitDetails)=> {
+                let visitStatus = visitDetails.status;
+
+                if (statusVisit[visitStatus] == 'on' && visitDetails.status == visitStatus) {
+                    visitFilterArray.push(visitDetails);
+                }
+            });
+
+            visitFilterArray.forEach((visit) => {
+                createMapMarker(visit,'marker');
+            });
+        }
+
+        function removeVisitDivElements() {
+            let visitDiv = document.getElementById("visitList");
+            let listChildNode = visitDiv.childNodes;
+            if(listChildNode.childNodes != null) {
+                console.log(node.id)
+            }
+            listChildNode.forEach((listNode)=> {
+                console.log(listNode.id + ' ' + listNode.parent);
+                visitDiv.removeChild(listNode);
+            });
+        }
+
+        function removeAllMapMarkers() {
+            mapMarkers.forEach((marker)=>{
+                marker.remove();
+            });
+        }
+
+        function createVisitHTML(visitDetails) {                        
+            let visitDiv = document.getElementById("visitList");
+            let visitLabel = document.createElement('button')
+            let listItem = document.createElement('li');
+            visitDiv.appendChild(listItem);
+            visitLabel.id = visitDetails.visitID;
+            visitLabel.setAttribute("class", "visitLabel");
+            visitLabel.setAttribute("name", visitDetails.clientName);
+            visitLabel.setAttribute("type", "btn");
+            visitLabel.innerHTML = "<button type=\"button\" class=\"btn btn-block transparent\" onclick=flyToVisit("+visitDetails.visitID+")><span class=\"pull-left\"><i class=\"fa fa-user\"></i></span>&nbsp; " + visitDetails.clientName + "</button>";
+            listItem.appendChild(visitLabel);
+            let listEl = document.createElement('ul');
+            listEl.id = 'sitterVisitList';
+            visitDiv.appendChild(listEl);
+
+        }
+
+        function flyToVisit(visitID) {
+            console.log('flying to visit with id: ' + visitID);
+        }
+
+        function showVisitBySitter(sitterID){
+
+            let visitListBySitter = LTMGR.getVisitsBySitter(sitterID);
+            removeVisitDivElements();
+            removeAllMapMarkers();
+
+
+
+            visitListBySitter.forEach((visitDetails)=> {
+                if (visitDetails.sitterID == sitterID) {
+                    console.log('<<<MATCH>>>>> sitter: ' + visitDetails.sitterName + ' client: ' + visitDetails.clientName)
+                    createVisitHTML(visitDetails);
+                    createMapMarker(visitDetails,'marker');
+                }
+            });
+
+            let lastVisit = visitListBySitter[visitListBySitter.length -1]
+
+            map.flyTo({
+                center: [parseFloat(lastVisit.lon), parseFloat(lastVisit.lat)],
+                zoom: 13
+            });
+        }
+
+    </script>
+</html>

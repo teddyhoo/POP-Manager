@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<title>LeashTime Manager Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src='../modules/LT.js'></script>
+		<script src='../modules/LTMGR.js'></script>
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+		<style>
+				#marker {
+				    background-image: url('../images/dog-marker.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-arrived {
+				    background-image: url('../images/arrive.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker1 {
+				    background-image: url('../images/sitter1.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker2 {
+				    background-image: url('../images/sitter2.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker3{
+				    background-image: url('../images/sitter3.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker4{
+				    background-image: url('../images/sitter4.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-future {
+				    background-image: url('../images/dog-marker.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-late {
+				    background-image: url('../images/yellow-flag-begin@3x.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-complete {
+				    background-image: url('../images/check-mark-green@3x.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-canceled {
+				    background-image: url('../images/red-dot@3x.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				#marker-visitreport {
+				    background-image: url('../images/note-icon@3x.png');
+				    background-size: cover;
+				    width: 32px;
+				    height: 32px;
+				    border-radius: 50%;
+				    cursor: pointer;
+				}
+				.mapboxgl-popup {
+    				max-width: 400px;
+				}
+				.visitLabel {
+				    display: inline-block;
+				    border: none;
+				    padding: 1rem 2rem;
+				    margin: 0;
+				    text-decoration: none;
+				    background: #0069ed;
+				    color: #ffffff;
+				    font-family: sans-serif;
+				    font-size: 1rem;
+				    cursor: pointer;
+				    text-align: center;
+				    transition: background 250ms ease-in-out, 
+				                transform 150ms ease;
+				    -webkit-appearance: none;
+				    -moz-appearance: none;
+				}
+		</style>
+		
+</head>
+<body>
+	<div id='title' style="width: 800px; height: 100px;">
+		<img src="../images/leashtime-logo-big@3x.png" widith=100 height=100>
+	</div>
+	<div id='map' class="mapView" style='width: 800px; height: 600px;'></div>
+
+	<div id="filterOptions" class ="filterStatus" style="width: 800px; height: 100px;">
+	<p>
+		<input type="checkbox" class="filterStatus" id="late" onclick="filterMapViewByVisitStatus('late')" checked>Late
+		<input type="checkbox" class="filterStatus" id="incomplete" onclick="filterMapViewByVisitStatus('incomplete')" checked>Incomplete
+		<input type="checkbox" class="filterStatus" id="completed" onclick="filterMapViewByVisitStatus('completed')">Completed
+		<input type="checkbox" class="filterStatus" id="visitreport" onclick="filterMapViewByVisitStatus('visitreport')">Visit Report
+		<input type="checkbox" class="filterStatus" id="canceled" onclick="filterMapViewByVisitStatus('canceled')">Canceled
+	</p>
+	</div>
+	<div id="sitterList" class="sitterListView" style="width: 800px; height: 100px;">
+	</div>
+	<div id="visitList" class="visitListView" style ="width: 400px; height: 600px;">
+	</div>
+</body>
+<script>
+	     	LTMGR.getVisits('','2018-10-22', '2018-10-22');
+
+	     	var sitterIcons = ["marker1", "marker2","marker3","marker4"];
+	     	var petImages = ['']
+
+			var sitterNameVisits  = setInterval(()=> {
+
+					let sitters = LTMGR.getSitters();
+					let sitterKeys = Object.keys(sitters);
+					let allSitterVisits = LTMGR.getVisitList();
+					let sitterCount = parseInt(0);
+
+					sitterKeys.forEach((sitterID)=> {
+						let sitterList = document.getElementById("sitterList");
+						let sitterFilterButton = document.createElement("button");
+						sitterFilterButton.innerHTML = sitters[sitterID];
+						sitterFilterButton.setAttribute("id",sitterID);
+						sitterFilterButton.setAttribute("class","filterSitterButton");
+						sitterFilterButton.setAttribute("onclick", "showVisitBySitter("+sitterID+")");
+						sitterList.appendChild(sitterFilterButton);
+						allSitterVisits.forEach((visitDetails)=> {
+							if (sitterID == visitDetails.sitterID) {
+								let visitObj = visitDetails;
+								console.log('Visits for sitter: ' + visitDetails.clientName);
+								console.log('Sitter icons: ' + sitterIcons[sitterCount])
+								createMapMarker(visitObj, sitterIcons[sitterCount]);
+							}
+						})
+						sitterCount = sitterCount + 1;
+					});
+
+					let lastVisit = allSitterVisits[0];
+
+					map.flyTo({
+							center: [lastVisit.lon, lastVisit.lat],
+							zoom: 16
+					});
+
+					clearInterval(sitterNameVisits);
+
+			}, 2000);
+
+	     	mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+	     	var mapMarkers = [];
+			var map = new mapboxgl.Map({
+			    container: 'map',
+			    style: 'mapbox://styles/mapbox/streets-v9',
+			    center : ([-77.888,38.1111]),
+			    zoom: 9
+			});
+
+			map.on("load",()=>{
+
+			});
+
+			function createMapMarker(visitInfo, markerIcon) {
+
+					let el = document.createElement('div');
+
+					el.class = 'mapMarker';
+					//el.id = 'marker';
+
+					if (visitInfo.status == 'completed') {
+						el.id = 'marker-complete';
+					} else if (visitInfo.status == 'incomplete') {
+						el.id = markerIcon;
+					} else if (visitInfo.status == 'canceled') {
+						el.id = 'marker-canceled';
+					} else if (visitInfo.status == 'late') {
+						el.id = 'marker-late';
+					} else if (visitInfo.status == 'future') {
+						el.id = markerIcon;
+					} else if (visitInfo.status == 'arrived') {
+						el.id = 'marker-arrived'
+					}
+					let imageComponent = '<img src=\"../images/lilly-tucker.jpg\" width=100 height=100>';
+					let popupBasicInfo = imageComponent + '<h1>'+visitInfo.pets+'</h1>';
+					popupBasicInfo += '<p>'+visitInfo.sitterName +'</p>';
+					popupBasicInfo += '<p>'+visitInfo.clientName+'</p>';
+					popupBasicInfo += '<p>'+visitInfo.service+'</p>';
+
+					if (visitInfo.status == 'completed') {
+						popupBasicInfo += '<p><img src=\"../images/check-mark-green@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+					} else if (visitInfo.status == 'late') {
+						popupBasicInfo += '<p><img src=\"../images/yellow-flag-begin@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+					} else if (visitInfo.status == 'future') {
+
+						popupBasicInfo += '<p><img src=\"../images/clockicon@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+
+					} else if (visitInfo.status == 'canceled') {
+						popupBasicInfo += '<p><img src=\"../images/x-mark-red@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
+					}
+
+					if (visitInfo.visitNote != null) {
+						popupBasicInfo += "<p><img src=\"../images/postit\-20x20.png\" width=20 height=20>"+visitInfo.visitNote;
+					}
+
+					popupBasicInfo += '<p><img src=\"../images/messagebubble128x128@3x.png\" width=20 height=20>&nbsp&nbsp<input type=\"text\" name=\"messageSitter\" id=\"messageSitter\"></p>';
+					
+					let popup = new mapboxgl.Popup({offset : 25})
+						.setHTML(popupBasicInfo);
+
+					let latitude = parseFloat(visitInfo.lat);
+					let longitude = parseFloat(visitInfo.lon);
+
+					if (latitude > 90 || latitude < -90 ) {
+
+						console.log("Lat error");
+					
+					} else {
+
+						let marker = new mapboxgl.Marker(el)
+						.setLngLat([longitude,latitude])
+						.setPopup(popup)
+						.addTo(map);
+
+						mapMarkers.push(marker);
+					}
+					
+			}
+
+			function filterMapViewByVisitStatus(filterStatus) {
+				let statusVisit = LTMGR.getFilterStatus();
+				if (statusVisit[filterStatus] == 'on') {
+					LTMGR.setFilterStatus(filterStatus, 'off');
+				} else {
+					LTMGR.setFilterStatus(filterStatus,'on');
+				}
+
+				let visitFilterArray = [];
+				mapMarkers.forEach((marker)=>{
+					marker.remove();
+				});
+
+				let allVisits = LTMGR.getVisitList();
+				statusVisit = LTMGR.getFilterStatus();
+
+				allVisits.forEach((visitDetails)=> {
+					let visitObj = visitDetails;
+					let visitStatus = visitDetails.status;
+
+					if (statusVisit[visitStatus] == 'on') {
+						visitFilterArray.push(visitObj);
+					}
+				});
+
+			 	visitFilterArray.forEach((visit) => {
+			 		createMapMarker(visit,'marker');
+			 	});
+			}
+
+			function showVisitBySitter(sitterID){
+
+					let sitterFilterArray = [];
+					let allSitterVisits = LTMGR.getVisitList();
+					let visitDiv = document.getElementById("visitList");
+					let childNodesVisitDiv = visitDiv.childNodes;
+					childNodesVisitDiv.forEach((node)=> {
+						console.log(node.id);
+						visitDiv.removeChild(node);
+					});
+
+					mapMarkers.forEach((marker)=>{
+						marker.remove();
+					});
+
+					let listEl = document.createElement('ul');
+					visitDiv.appendChild(listEl);
+					allSitterVisits.forEach((visitDetails)=> {
+						let visitObj = visitDetails;
+						if (visitObj.sitterID == sitterID) {
+							let visitLabel = document.createElement('button')
+							let listItem = document.createElement('li');
+							visitDiv.appendChild(listItem);
+							visitLabel.id = visitDetails.visitID;
+							visitLabel.setAttribute("class", "visitLabel");
+							visitLabel.setAttribute("name", visitDetails.clientName);
+							visitLabel.innerHTML = visitDetails.clientName;
+							listItem.appendChild(visitLabel);
+							createMapMarker(visitDetails,'marker');
+							sitterFilterArray.push(visitObj);
+						}
+					});
+					let lastVisit = sitterFilterArray[sitterFilterArray.length -1]
+					map.flyTo({
+							center: [parseFloat(lastVisit.lon), parseFloat(lastVisit.lat)],
+							zoom: 13
+					});
+			
+			}
+
+		</script>
+</html>

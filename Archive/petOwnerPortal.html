@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>LeashTime Pet Owner Portal  -  AJAX TEST</title>
+      <!-- Go to https://code.jquery.com/ for more details -->
+<style type="text/css">
+
+    html {
+      margin: 20;
+      padding: 20;
+      }
+    body { 
+      font: 100% Lato-Light;
+      line-height: 1.0000;
+      color: #FFFFFF; 
+      background: #ccc url(http://csszengarden.com/001/blossoms.jpg) no-repeat bottom right; 
+      margin: 0; 
+      padding: 0;
+      }
+    p { 
+      margin-top: 10; 
+      text-align: justify;
+      }
+    h3 { 
+      font: italic normal 1.2em Lato-Regular
+      letter-spacing: 1px; 
+      margin-bottom: 0; 
+      color: #7C075C;
+      }
+    h1 { 
+      font: italic normal 1.4em Lato-Regular;
+      letter-spacing: 1px; 
+      margin-bottom: 0; 
+      color: #7D775C;
+      }
+
+    table {
+      border-spacing: 1;
+      border-collapse: collapse;
+      background: #ff00bB;
+      border-radius: 6px;
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    table * {
+      position: relative;
+    }
+    table td, table th {
+      padding-left: 8px;
+    }
+    table thead tr {
+      height: 60px;
+      background: #FFED86;
+      font-size: 16px;
+    }
+    table tbody tr {
+      height: 48px;
+      border-bottom: 1px solid #FFFFFF;
+    }
+    table tbody tr:last-child {
+      border: 0;
+    }
+    table td, table th {
+      border-left: 1px solid #FFFFFF;
+      text-align: left;
+    }
+    table td.l, table th.l {
+      text-align: right;
+    }
+    table td.c, table th.c {
+      text-align: center;
+    }
+    table td.r, table th.r {
+      text-align: center;
+    }
+
+    @media screen and (max-width: 35.5em) {
+      table {
+        display: block;
+      }
+      table > *, table tr, table td, table th {
+        display: block;
+      }
+      table thead {
+        display: none;
+      }
+      table tbody tr {
+        height: auto;
+        padding: 8px 0;
+      }
+      table tbody tr td {
+        padding-left: 45%;
+        margin-bottom: 12px;
+      }
+      table tbody tr td:last-child {
+        margin-bottom: 0;
+      }
+      table tbody tr td:before {
+        position: absolute;
+        font-weight: 700;
+        width: 40%;
+        left: 10px;
+        top: 0;
+      }
+      table tbody tr td:nth-child(1):before {
+        content: "Code";
+      }
+      table tbody tr td:nth-child(2):before {
+        content: "Stock";
+      }
+      table tbody tr td:nth-child(3):before {
+        content: "Cap";
+      }
+      table tbody tr td:nth-child(4):before {
+        content: "Inch";
+      }
+      table tbody tr td:nth-child(5):before {
+        content: "Box Type";
+      }
+    }
+    body {
+      background: #aaBBBB;
+      font: 400 18px 'Lato-Light';
+      padding: 40px;
+    }
+
+    blockquote {
+      color: white;
+      text-align: center;
+    }
+</style>
+      
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src ="./modules/LT.js"></script>
+<script type="text/javascript">
+
+      var all_visits;
+      var serviceList;
+      var surchargeItems;
+      var timeWindowList;
+      var petOwnerProfile;
+      var petInfo =[];
+
+      function populateData() {
+               let table = document.getElementById("visitTable");
+               let row_head = table.insertRow(0);
+               let th1 = row_head.insertCell(0);
+               let th2 = row_head.insertCell(1);
+               let th3 = row_head.insertCell(2);
+               let th4 = row_head.insertCell(3);
+               let th5 = row_head.insertCell(4);
+
+
+               th1.innerHTML = "STATUS";
+               th2.innerHTML = "SERVICE";
+               th3.innerHTML = "BEG / END / DATE";
+               th4.innerHTML = "CHARGES"
+               th5.innerHTML = "MANAGE";
+
+               var row_count = 0;
+
+               var visitIDs = all_visits.map(function(visit) {
+                        let row = table.insertRow(row_count);
+                        row_count++;
+                        let cell1 = row.insertCell(0);
+                        let cell2 = row.insertCell(1);
+                        let cell3 = row.insertCell(2);
+                        let cell4 = row.insertCell(3);
+                        let cell5 = row.insertCell(4);
+
+
+                        let statString = "";
+
+                        if (visit.status == "INCOMPLETE") {
+                          statString = "<img src=\"\./images/leash.png\" height=20 width=20>";
+                        } else if (visit.status == "completed") {
+                          statString = "<img src=\"\./images/check-mark-green@3x.png\" height=20 width=20>";
+                        } else {
+                          statString = visit.status;
+                        }
+                        statString += visit.service;
+                        cell1.innerHTML = statString;
+                        cell2.innerHTML = visit.service;
+
+                        if (visit.arrival_time != null && visit.completion_time != null) {
+                          let dateStart = new Date(visit.arrival_time);
+                          let hours = dateStart.getHours();
+                          let min = dateStart.getMinutes();
+                          let minText = ''
+                          if (min < 10) {
+                            minText = '0'+min;
+                          } else {
+                            minText = min;
+                          }
+                          if (hours > 12) {
+                            hours -= 12;
+                            minText = minText+'p';
+                          } else if (hours == 12) {
+                            minText = minText+'p';
+                          }
+                          let startTime = hours+':'+minText;
+
+                          let dateEnd = new Date(visit.completion_time);
+                          
+                          let emin = dateEnd.getMinutes();
+                          let emintext ='';
+                          if(emin < 10) {
+                            eminText = '0' + emin;
+                          } else {
+                            eminText = emin;
+                          }
+                          let ehours = dateEnd.getHours();
+                          if (ehours > 12) {
+                            ehours -= 12;
+                            emintext = emintext+'p';
+                          } else if (ehours == 12) {
+                            emintext = emintext+'p';
+                          }
+                          let endTime = ehours+':'+eminText;
+                          cell3.innerHTML = startTime+ ' - ' + endTime;
+                        } else if (visit.arrival_time != null && visit.completion_time == null) {
+                          cell3.innerHTML = visit.arrival_time + ' ' + '- In process';
+                        } else {
+                          cell3.innerHTML = visit.time_window_start + ' - ' + visit.time_window_end;
+                        }
+
+                        let chargeItems = "$" + visit.charge;
+                        let surchargeInt = parseInt(visit.surchargeAmount);
+                        if (surchargeInt > 0) {
+                          chargeItems += "<img src=\"./images/money.png\" height=20 width=20> $" + visit.surchargeAmount;
+                        }
+                        if (visit.tax != null) {
+                          chargeItems += " +  TAX: $"+visit.tax;
+                        }
+
+                        cell4.innerHTML = chargeItems;
+
+                        let cancelButton = '';
+                        if (visit.status == 'canceled') {
+                            cancelButton = "<button id=\""+visit.appointmentid+"\" onClick=cancelVisit("+visit.appointmentid+")>UNCANCEL</button>";
+                              cell5.innerHTML = cancelButton + "  $" + visit.calculateTotalCharges();
+                              cell5.addEventListener("click", event=> {
+                                event.preventDefault()
+                              })
+                        } else if (visit.status == 'INCOMPLETE' || visit.status == 'future') {
+                            cancelButton = "<button id=\""+visit.appointmentid+"\" onClick=cancelVisit("+visit.appointmentid+")>CANCEL</button>";
+                             cell5.innerHTML = cancelButton + "  $" + visit.calculateTotalCharges();
+                            cell5.addEventListener("click", event=> {
+                                event.preventDefault()
+                              })
+                        } else if (visit.status == 'completed') {
+
+                        }
+
+                        let changeButton = '<button id=\"' + visit.appointmentid+'\" onClick=\"changeVisit('+visit.appointmentid+')>CHANGE</button>';
+               });
+      }
+
+      function cancelVisit(appointment) {
+
+          var visitIDs = all_visits.map(function(visit) {
+              if (appointment == visit.appointmentid) {
+                if (visit.status == "INCOMPLETE" || visit.status == "late") {
+                  visit.status = "canceled";
+                  let statElem = document.getElementById(appointment);
+                  LT.sendCancelVisitRequest('http://localhost:3300',appointment,'None');
+                  let parentNode = statElem.parentNode;
+                  parentNode.removeChild(statElem);
+                  let cancelButton = "<button id=\""+visit.appointmentid+"\" onClick=cancelVisit("+visit.appointmentid+")>UNCANCEL</button>";
+                  parentNode.innerHTML = cancelButton + " $" + visit.calculateTotalCharges();
+                } else if (visit.status == 'canceled') {
+                  visit.status = "INCOMPLETE";
+                  let statElem = document.getElementById(appointment);
+                  console.log(statElem.id);
+                  LT.sendCancelVisitRequest('http://localhost:3300',appointment,'None');
+                  let parentNode = statElem.parentNode;
+                  parentNode.removeChild(statElem);
+                  let cancelButton = "<button id=\""+visit.appointmentid+"\" onClick=cancelVisit("+visit.appointmentid+")>CANCEL</button>";
+                  parentNode.innerHTML = cancelButton + " $" + visit.calculateTotalCharges();
+                }
+                
+              }
+          });
+      } 
+      function changeVisit(appointment) {
+
+      }
+
+      function populateServiceData() {
+          var select = document.getElementById("serviceItemList");
+          for(index in serviceList) {
+            let serviceObj = serviceList[index];
+            let serviceString = serviceObj.serviceName + " [$" + serviceObj.serviceCharge + "]";
+                select.options[select.options.length] = new Option(serviceString, index);
+          }
+      }
+      function populateTimeWindows() {
+          var timeWindow = document.getElementById("timeWindowsList");
+          for (index in timeWindowList) {
+            tw_string = timeWindowList[index].label;
+            end_string = timeWindowList[index].endTW;
+            tw_string += " (" + timeWindowList[index].begin;
+            tw_string += " - " + end_string + ")";
+            timeWindow.options[timeWindow.options.length] = new Option(tw_string, index);
+          }
+      }
+      function populateSurcharges() {
+          var surchargeWindow = document.getElementById("surchargeList");
+          for (index in surchargeItems) {
+            surcharge_string = surchargeItems[index].label;
+            surcharge_string += " (" +surchargeItems[index].charge + ")";
+            surcharge_string += " " + surchargeItems[index].surchargeType;
+            surcharge_string += "  ["+surchargeItems[index].surchargeDate + "]";
+            surchargeWindow.options[surchargeWindow.options.length] = new Option(surcharge_string, index);
+          }
+      }
+
+
+      $(document).ready(() => {
+            $.ajax({
+                "url" : "http://localhost:3300",
+                "type" : "GET",
+                "data" : {"type" : "visits"},
+                "dataTYPE" : "JSON"
+            }).done((data)=> {
+
+                surchargeItems = LT.getSurchargeItems(data);
+                all_visits = LT.getVisits(data);
+                serviceList = LT.getServiceItems(data);
+                timeWindowList = LT.getTimeWindows(data);
+
+                let num_visit = all_visits.length;
+                let num_service = serviceList.length;
+                let num_surcharge = surchargeItems.length;
+                let num_tw = timeWindowList.length;
+
+                populateData();
+                populateServiceData();
+                populateTimeWindows();
+                populateSurcharges();
+            })
+
+            $.ajax({
+                  "url" : "http://localhost:3300",
+                  "type" : "GET",
+                  "data" : {"type" : "clients"},
+                  "dataTYPE" : "JSON"
+            }).done((clientdata)=>{
+                  petOwnerProfile = LT.getClientProfileInfo(clientdata);
+                  var clientWindow = document.getElementById("petOwner");
+                  clientWindow.innerHTML = "Welcome " + petOwnerProfile.petOwnerName;
+
+                  let num_pets = petOwnerProfile.pets.length;
+                  var petNameWindow = document.getElementById("pets");
+                  var petNames = '';
+                  for (var q = 0; q < num_pets; q++) {
+                      let petProfile = petOwnerProfile.pets[q];
+                      petNames += petProfile.petName + ' ';
+                  }
+                  petNameWindow.innerHTML = petNames;
+
+            })
+        });
+
+      window.addEventListener("load", function () {
+        function sendData() {
+          var XHR = new XMLHttpRequest();
+          var FD = new FormData(form);
+          XHR.addEventListener("load", function(event) {
+            alert(event.target.responseText);
+          });
+          XHR.addEventListener("error", function(event) {
+            alert('Oops! Something went wrong.');
+          });
+        }
+         var form = document.getElementById("myForm");
+
+        // ...and take over its submit event.
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          sendData();
+        });
+      });
+
+  </script>
+  </head>
+  <body>
+      <h1>LeashTime Pet Owner Portal</h1>
+
+      <div>
+          <h1 id="pets"></h1>
+          <h2 id="petOwner"></h2>
+      </div>
+      <div>
+          <form id="requestService">
+            <label for="service">Choose Service: </label>
+            <select  id="serviceItemList"> </select>
+            <BR>
+            <label for="service">Choose Time Window</label>
+            <select id="timeWindowsList"></select>
+            <BR>
+            <input type="submit" value="Request Visit">
+          </form>
+      </div>
+
+      <div>
+          <p>Surcharge List</p>
+          <select id="surchargeList">
+          </select>
+          <BR>
+          <BR>
+      </div>
+
+
+      <div id="visits">
+        <table id="visitTable">
+        </table>
+      </div>
+  </body>
+</html>
