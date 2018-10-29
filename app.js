@@ -116,20 +116,27 @@ http.createServer((req, res) => {
 			console.log("Error executing all promises: " + error);
 		});
 	
-	} else if(theType == "getPetPic") {
+	} else if(theType == 'getPetPic') {
 
 		let petid = typeRequest.petid;
 		let url_base = 'https://leashtime.com/pet-photo.php?petid='+petid;
 		console.log(url_base);
-		https.request(url)
+		/*https.request(url)
 			.on('response'), function(res) {
 				if (res.headers['content-length'] > maxLength*1024*1024) {
-					callbak(new Error('Image too large'));
+
+					callback(new Error('Image too large'));
+
 				} else if (!~[200,304].indexOf(res.statusCode)) {
-					callbak(new Error('Invalid status code'));
+
+					callback(new Error('Invalid status code'));
+
 				} else if (!res.headers['content-type'].match(/image/)) {
-					callbak(new Error('Not image'));
+
+					callback(new Error('Not image'));
+
 				} else {
+
 					let body = '';
 					res.setEncoding('binary');
 					res.on('error', function(err) {
@@ -139,6 +146,7 @@ http.createServer((req, res) => {
 						body += chunk;
 					})
 					.on('end', function() {
+						console.log('Writing image data to file');
 						var path= '/tmp' + Math.random().toString().split('.').pop();
 						fs.writeFile(path, body, 'binary', function(err) {
 							callback(err,path);
@@ -146,6 +154,7 @@ http.createServer((req, res) => {
 					})
 				}
 			}
+			*/
 	}
 }).listen(port);
 

@@ -7,6 +7,12 @@ var LTMGR = (function() {
 	var sitterList = {};
 	var allClients = [];
 
+	class SitterProfile {
+		constructor(sitterInfo) {
+			this.sitterID = sitterInfo.sitterid;
+			this.sitterName = sitterInfo.sittername;
+		}
+	}
 	class SitterVisit {
 		constructor(visitInfo) {
 			this.visitID = visitInfo.appointmentid;

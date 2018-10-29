@@ -211,9 +211,9 @@
                         <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
                             <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus btn btn-default-bright" id="late" onclick="filterMapViewByVisitStatus('late')" role="button" checked>Late</a>
                             <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="incomplete" onclick="filterMapViewByVisitStatus('incomplete')" checked>Incomplete</a>
-                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="completed" onclick="filterMapViewByVisitStatus('completed')">Completed</a>
-                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="visitreport" onclick="filterMapViewByVisitStatus('visitreport')">Visit Report</a>
-                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="canceled" onclick="filterMapViewByVisitStatus('canceled')">Canceled</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="completed" onclick="filterMapViewByVisitStatus('completed')" checked>Completed</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="visitreport" onclick="filterMapViewByVisitStatus('visitreport')" checked>Visit Report</a>
+                            <a class="btn btn-default-bright" role="button"><input type="checkbox" class="filterStatus" id="canceled" onclick="filterMapViewByVisitStatus('canceled')" checked>Canceled</a>
                         </div>
                     </div>
                 </div>
@@ -232,10 +232,13 @@
         var statusVisit = {
             'future' : 'on',
             'late' : 'on',
-            'canceled' : 'off',
-            'completed' : 'off',
-            'visitreport' : 'off'
+            'canceled' : 'on',
+            'completed' : 'on',
+            'visitreport' : 'on',
+            'arrived' : 'on'
         };
+        var sitterIcons = ["marker1", "marker2","marker3","marker4"];
+
 
         var fullDate = getFullDate();
         LTMGR.getVisits('',fullDate,fullDate);
@@ -277,7 +280,6 @@
             // THE COUNT VALUE IS USED AS LOOKUP IN ARRAY OF ICONS, sitterIcons[]
             // THE ICON IN THE ARRAY IS UNIQUE AND REPRESENTS A PARTICULAR SITTER
 
-            var sitterIcons = ["marker1", "marker2","marker3","marker4"];
             let sitterCount = parseInt(0);
 
             // LIST OF SITTERS WITH KEY=SITTER ID AND VALUE=SITTER NAME
@@ -321,7 +323,8 @@
             } else if (visitInfo.status == 'arrived') {
                 el.id = 'marker-arrived'
             } else if (visitInfo.status == 'future' || visitInfo.status == 'incomplete') {
-                el.id = markerIcon;
+                //el.id = markerIcon;
+                el.id = 'marker';
             }
 
             let popup = new mapboxgl.Popup({offset : 25})
@@ -357,8 +360,15 @@
                 if(visitInfo.clientID == client.client_id) {
                     popupBasicInfo += '<p>' + client.street1 + ', ' +client.street2;
                     client.pets.forEach((pet)=> {
-                        console.log('Getting pet photo for client: ' + client.petOwnerName);
-                        //LTMGR.getPetPhoto(pet.petID);
+                        let url = 'http://localhost:3300?type=getPetPic&petid='+pet.petID;
+                        console.log(url);
+                        fetch(url)
+                            .then((response)=> {
+                                return response.json();
+                            })
+                            .then((petPhoto) => {
+                                console.log('pet photo request response');
+                            })
                     });
                 }
             })
@@ -405,6 +415,9 @@
                     visitFilterArray.push(visitDetails);
                 }
             });
+
+            //let sitters = LTMGR.getSitters();
+            //let sitterKeys = Object.keys(sitters);
 
             visitFilterArray.forEach((visit) => {
                 createMapMarker(visit,'marker');
@@ -455,8 +468,6 @@
             let visitListBySitter = LTMGR.getVisitsBySitter(sitterID);
             removeVisitDivElements();
             removeAllMapMarkers();
-
-
 
             visitListBySitter.forEach((visitDetails)=> {
                 if (visitDetails.sitterID == sitterID) {
