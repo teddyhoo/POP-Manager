@@ -205,7 +205,7 @@
 
                 <div class="col-sm-8 full-bleed no-padding no-margin" style="height: 700px">
                     <div class="card transparent no-margin no-padding">
-                        <div id='map' class="mapView border-gray" style="height: 500px"></div>
+                        <div id='map' class="mapView border-gray" style="height: 350px"></div>
                     </div>
                     <div id="filterOptions" class="filterStatus ">
                         <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
@@ -346,83 +346,37 @@
             console.log('Popup on open event triggered');
         }
 
-        /*async function fetchURLs(urlsToFetch) {
-            let promiseArray = [];
-            urlsToFetch.forEach((url) => {
-                let getPetPicPromise = new Promise((resolve,reject) => {
-                    fetch(url)
-                        .then(function(response) {
-                            if (response.status !== 200) {
-                                reject(response.status);
-                            } else {
-
-                            }
-
-                        }
-
-                })
-            })
-            try {
-                var data = await Promise.all(urls);
-
-                  for (var i of data) {
-                    console.log(`RESPONSE ITEM \n`);
-                    for (var obj of i) {
-
-                    }
-                  }
-
-                } catch (error) {
-                  console.log(error);
-                }
-        }
-
-        var requestAsync = function(url) {
-            return new Promise((resolve, reject) => {
-                var req = request(url, (err, response, body) => {
-                    if (err) return reject(err, response, body);
-                    resolve(JSON.parse(body));
-                });
-            });
-        };
-
-        const urls = [
-            'https://jsonplaceholder.typicode.com/posts',
-            'https://jsonplaceholder.typicode.com/albums',
-            'https://jsonplaceholder.typicode.com/users'
-        ];
-
-        var getParallel = async function() {
-            try {
-                var data = await Promise.all(urls.map(requestAsync));
-            } catch (err) {
-                console.error(err);
-            }
-            console.log(data);
-        }
-
-        getParallel();*/
-
         function createPopupView(visitInfo, divElement) {
 
-            let imageComponent = '<img src=\"../../../images/lilly-tucker.jpg\" id=\"petPhoto\" width=100 height=100 onopen=fetchPetPhoto()>';
-            let popupBasicInfo = imageComponent + '<h1>'+visitInfo.pets+'</h1>';
-            popupBasicInfo += '<p>'+visitInfo.sitterName +'</p>';
-            popupBasicInfo += '<p>'+visitInfo.clientName+'</p>';
-            popupBasicInfo += '<p>'+visitInfo.service+'</p>';
-            
+            let popupBasicInfo = '<h1>'+visitInfo.pets+'</h1>';
             var listClients = LTMGR.getClientList();
             let petPhotoFetch = [];
 
             listClients.forEach((client) => {
                 if(visitInfo.clientID == client.client_id) {
-                    popupBasicInfo += '<p>' + client.street1 + ', ' +client.street2;
+                    popupBasicInfo += '<div class=\"petProfilePhotos\" id=\"' + client.client_id + '\">';
+                    let petCount = 0;
                     client.pets.forEach((pet)=> {
-                        let url = 'http://localhost:3300?type=getPetPic&petid='+pet.petID;
-                        petPhotoFetch.push(url);
+
+                        let url = '<img src=\"../../../images/dog'+petCount+ '.jpg\" id=\"petPhoto\" width=100 height=100 onopen=fetchPetPhoto()>&nbsp&nbsp';
+                        //let imageComponent = '<img src=' + url + ' id=\"' + pet.petID + '\" width=100 height=100>';
+                        let imageComponent = url;
+                        popupBasicInfo += imageComponent;
+                        petCount = petCount + 1;
                     });
+
+                    popupBasicInfo += '</div>';
+                    popupBasicInfo += '<p>' + client.street1 + ', ' +client.street2;
+
                 }
-            })
+            });
+
+            //let imageComponent = '<img src=\"../../../images/lilly-tucker.jpg\" id=\"petPhoto\" width=100 height=100 onopen=fetchPetPhoto()>';
+            popupBasicInfo += '<p>'+visitInfo.sitterName +'</p>';
+            popupBasicInfo += '<p>'+visitInfo.clientName+'</p>';
+            popupBasicInfo += '<p>'+visitInfo.service+'</p>';
+            
+            
             if (visitInfo.status == 'completed') {
                 popupBasicInfo += '<p><img src=\"../../../images/check-mark-green@3x.png\" width=20 height=20>'+visitInfo.timeOfDay+'</p>';
                 popupBasicInfo += '<p>Started: ' + visitInfo.starttime + ' - ' + visitInfo.endtime + '</p>';
@@ -463,7 +417,6 @@
                 let visitStatus = visitDetails.status;
                 console.log(visitStatus);
                 if (statusVisit[visitStatus] == 'on' && visitDetails.status == visitStatus) {
-                    console.log(visitStatus);
                     visitFilterArray.push(visitDetails);
                 }
             });
