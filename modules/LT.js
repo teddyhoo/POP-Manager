@@ -29,6 +29,7 @@ var LT = (function() {
 
 			this.parsePetInfo(pet_info);
 			this.parsePetOwnerData(pet_owner_data);
+
 		}
 
 		parsePetOwnerData(pData) {
@@ -99,8 +100,6 @@ var LT = (function() {
 			this.neighbor_cellphone= this.neighbor_dict['cellphone'];
 			this.neighbor_note = this.neighbor_dict['note'];
 			this.neighbor_hasKey = this.neighbor_dict['haskey'];
-
-
 			let re = new RegExp('custom[0-9]+');
 			let keys = Object.keys(pData);
 			let customFieldsLocal = [];
@@ -137,11 +136,11 @@ var LT = (function() {
 		constructor(pet_data) {
 			this.petID = pet_data['petid'];
 			this.petName = pet_data['name'];
-			this.type = pet_data['type'];
+			this.petType = pet_data['type'];
 			this.age = pet_data['birthday'];
 			this.breed = pet_data['breed'];
 			this.gender = pet_data['sex'];
-			this.color = pet_data['color'];
+			this.petColor = pet_data['color'];
 			this.fixed = pet_data['fixed'];
 			this.description = pet_data['description'];
 			this.notes = pet_data['name'];
@@ -194,7 +193,6 @@ var LT = (function() {
 			} else {
 				this.tax = parseFloat(0);
 			}
-		
 		}
 
 		mergeSitterVisitInfo(sitter_visit_dict) {
@@ -296,7 +294,6 @@ var LT = (function() {
 	// *                                                                                                                                            *
 	// ***********************************************************************************
 
-
 	// Ajax calls
 
 	// VISIT DATA FOR PARTICULAR CLIENT (LOG IN AS CLIENT ID)
@@ -309,6 +306,7 @@ var LT = (function() {
 	// PET PHOTOS
 	// https://leashtime.com/pet-photo.php?id={petid}&version=display
 	// parameters: petid&version=display    [if set param, 300px max dimension; else, full size]
+
 
 	function getClientProfileInfo(client_dict) {
 		let clientKeys = Object.keys(client_dict);
@@ -402,8 +400,6 @@ var LT = (function() {
 		});
 		return surcharge_list;
 	}
-
-
 	// ***********************************************************************************
 	// *                                                                                                                                           *
 	// *            REQUEST METHODS: SERVER CREATES NEW REQUEST                           *
@@ -484,10 +480,7 @@ var LT = (function() {
 		//    charge
 	}
 	function sendRequestSchedule(url, visitArray) {
-
 	}
-
-
 	return {
 		getVisits : getVisits,
 		getServiceItems: getServiceItems,
@@ -497,16 +490,15 @@ var LT = (function() {
 		sendCancelVisitRequest : sendCancelVisitRequest,
 		sendUncancelRequest : sendUncancelRequest,
 		sendChangeVisitRequest : sendChangeVisitRequest,
-		sendRequestSchedule : sendRequestSchedule
+		sendRequestSchedule : sendRequestSchedule,
 	}
-
 	module.exports = {
 		visit_list : visit_list,
 		service_list : service_list,
 		surcharge_list : surcharge_list,
 		time_windows_list : time_windows_list,
 		Visit : Visit,
-		Client: Client,
+		PetOwner : PetOwner,
 		Pet: Pet,
 		ServiceItem : ServiceItem,
 		SurchargeItem : SurchargeItem,

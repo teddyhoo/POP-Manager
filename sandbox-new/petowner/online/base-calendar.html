@@ -253,8 +253,6 @@
 
                     <!-- BEGIN LEFT SERVICE COLUMN -->
                     <div class="col-sm-3 no-padding">
-
-
                         <div class="transparent">
                             <!-- PROVIDER TITLE -->
                             <div class="card-head" style="line-height: 20px;">
@@ -278,42 +276,12 @@
                                 </style>
 
                                 <ul class="list divider-full-bleed list-events" id="serviceList">
-
-                                    <li class="tile lightgrey ui-draggable ui-draggable-handle padding" data-class-name="event-info">
-                                        <div class="tile-content">
-                                            <div class="tile-text">30 MIN WALK</div>
-                                            <div class="tile-icon"><i class="fa fa-circle-thin text-info"></i></div>
-                                        </div>
-                                    </li>
-                                    <li class="tile lightgrey ui-draggable ui-draggable-handle" data-class-name="event-info">
-                                        <div class="tile-content">
-                                            <div class="tile-text">60 MIN WALK</div>
-                                            <div class="tile-icon"><i class="fa fa-circle-thin text-info"></i></div>
-                                        </div>
-                                    </li>
-                                    <li class="tile lightgrey ui-draggable ui-draggable-handle" data-class-name="green">
-                                        <div class="tile-content">
-                                            <div class="tile-text">OVERNIGHT VISIT</div>
-                                            <div class="tile-icon"><i class="fa fa-circle-thin text-success"></i></div>
-                                        </div>
-                                    </li>
-                                    <li class="tile lightgrey ui-draggable ui-draggable-handle" data-class-name="green">
-                                        <div class="tile-content">
-                                            <div class="tile-text">OVERNIGHT BOARDING</div>
-                                            <div class="tile-icon"><i class="fa fa-circle-thin text-success"></i></div>
-                                        </div>
-                                    </li>
-                                    <li class="tile lightgrey ui-draggable ui-draggable-handle" data-class-name="orange">
-                                        <div class="tile-content">
-                                            <div class="tile-text">FEEDING/LITTER</div>
-                                            <div class="tile-icon"><i class="fa fa-circle-thin text-warning no-border"></i></div>
-                                        </div>
-                                    </li>
+                                    <!-- AUTO POPULATED FROM JSCRIPT-->
                                 </ul>
                                 <!-- END SERVICE LIST -->
 
 
-
+<!--
                                 <div class="text-center btn-modals small-padding">
                                     <button class="btn btn-default-bright btn-raised" data-toggle="modal" data-target="#formModal">
                                         ON DROP</button>
@@ -321,7 +289,7 @@
                                     <button class="btn btn-default-bright btn-raised" data-toggle="modal" data-target="#formModal2">
                                         MULTI VISIT</button>
                                 </div>
-
+-->
 
                                 <!-- BEGIN FORM MODAL MARKUP -->
                                 <div class="modal fade" id="bizModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
@@ -544,19 +512,16 @@
                                                 <h4 class="modal-title" id="formModalLabel">SERVICE REQUEST</h4>
                                             </div>
                                             <form class="form-horizontal" role="form">
-                                                <div class="modal-body">
+                                                <!--<div class="modal-body">-->
+                                                <div class="modal-body" id="servicePicker">
 
                                                     <div class="alert alert-warning text-lg" role="alert">
-                                                        <span class="text-lg"><strong>Service Request:</strong> <span class="blue-text">60 Minute Walk Service</span></span>
-                                                        <br>
-                                                        <strong>Date:</strong> <span class="blue-text">April 30th, 2017</span>
-
-
+                                                        <strong>Date:</strong> <span class="blue-text" id="dateToday"></span>
                                                         <div class="form-group pull-right control-width-normal">
                                                             <div class="input-group date" id="demo-date">
                                                                 <div class="input-group-content">
-                                                                    <input type="text" class="form-control">
-                                                                    <label>Datepicker</label>
+                                                                    <input type="text" class="form-control" id='untilDate'>
+                                                                    <label>Until date: </label>
                                                                 </div>
                                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                                             </div>
@@ -564,28 +529,26 @@
                                                         <br>
                                                     </div>
 
-                                                    <label class="text-default-light">SELECT TIME OF DAY PREFFERENCE</label>
-                                                    <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">MORNING</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">MIDDAY</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">AFTERNOON</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">EVENING</a>
+                                                    <label class="text-default-light">SELECT SERVICE</label>
+                                                    <div class="btn-group btn-group-justified" id="selectService" role="group" aria-label="Justified button group">
                                                     </div>
                                                     <br>
-                                                    <label class="text-default-light">SELECT SCHEDULE OPTION</label>
-                                                    <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">
-                                                            MULTI-DAY SERVICES</a>
-                                                        <a href="#!" class="btn btn-default-bright " type="checkbox" role="checkbox">
-                                                            SINGLE-DAY SERVICES</a>
+                                                    <label class="text-default-light">SELECT TIME WINDOW</label>
+                                                    <div class="btn-group btn-group-justified" id='timeWindowPicker' role="group" aria-label="Justified button group">
+                                                    </div>
+                                                    <br>
+                                                     <label class="text-default-light">SELECT PETS</label>
+                                                    <div class="btn-group btn-group-justified" id='petPicker' role="group" aria-label="Justified button group">
                                                     </div>
                                                     <br>
                                                 </div>
 
 
                                                 <div class="modal-footer grey lighten-2">
-                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">CANCEL REQUEST</button>
-                                                    <button type="button" class="btn green width-6 white-text" data-dismiss="modal" data-toggle="modal" data-target="#formModal3">REQUEST SERVICE</button>
+                                                    <!--<button type="button" class="btn green width-6 white-text" data-dismiss="modal" data-toggle="modal" data-target="#formModal3">REQUEST</button>-->
+                                                    <button type="button" class="btn green width-6 white-text" data-dismiss="modal" data-toggle="modal" data-target="#formModal3" id="requestServiceButton">REQUEST</button>
+                                                    <!--<button type="button" class="btn green width-6 white-text" data-dismiss="modal" data-toggle="modal" data-target="#formModal2">COPY</button>-->
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">CANCEL</button>
                                                 </div>
 
                                             </form>
@@ -605,40 +568,6 @@
                                             <!-- FORM -->
                                             <form class="form-horizontal" role="form">
                                                 <div class="modal-body">
-                                                    <!--<label class="text-default-light"></label>-->
-                                                    <!-- DAYS -->
-                                                    <!--<div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">CANCEL</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">CHANGE</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">ADD NOTE</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">OTHER</a>-->
-                                                        <!--<a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">FRI</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">SAT</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">SUN</a>-->
-                                                    <!--</div>-->
-                                                    <br>
-                                                    <!-- WEEKS -->
-                                                   <!-- <label class="text-default-light">WHICH VISITS</label>
-                                                    <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">TODAY ONLY</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">ALL VISITS TODAY</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">ALL FUTURE</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">4WEEK</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">5WEEK</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">6WEEK</a>
-                                                    </div>
-                                                    <br>-->
-                                                    <!-- MONTHS 
-                                                    <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">1MO</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">2MO</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">3MO</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">4MO</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">5MO</a>
-                                                        <a href="#!" class="btn btn-default-bright" type="checkbox" role="checkbox">6MO</a>
-                                                    </div>
-                                                    <br>
-                                                </div>-->
                                                 <div class="modal-footer grey lighten-2">
                                                     <button type="button" class="btn btn-danger" data-dismiss="modal">CANCEL REQUEST</button>
                                                     <button type="button" class="btn btn-danger" data-dismiss="modal">CHANGE SERVICE</button>
@@ -694,26 +623,14 @@
                                                                                     <table class="table">
                                                                                         <thead>
                                                                                             <tr>
-                                                                                                <th style="width:60px" class="text-center">QTY</th>
-                                                                                                <th class="text-left">DESCRIPTION</th>
-                                                                                                <th style="width:140px" class="text-right">UNIT PRICE</th>
-                                                                                                <th style="width:90px" class="text-right">TOTAL</th>
+                                                                                                <th style="width:40px" class="text-left">DATE</th>
+                                                                                                <th style="width:140px" class="text-center">SERVICE</th>
+                                                                                                <th style="width:60" class="text-right">TIME</th>
+                                                                                                <th style="width:50px" class="text-right">AMT</th>
                                                                                             </tr>
                                                                                         </thead>
-                                                                                        <tbody>
-                                                                                            <tr>
-                                                                                                <td class="text-center">6</td>
-                                                                                                <td>60 Minute Walk</td>
-                                                                                                <td class="text-right">$35.00</td>
-                                                                                                <td class="text-right">$210.00</td>
-                                                                                            </tr>
-                                                                                            <tr>
-                                                                                                <td class="text-center">11</td>
-                                                                                                <td>30 Minute Walk</td>
-                                                                                                <td class="text-right">$20.00</td>
-                                                                                                <td class="text-right">$222.00</td>
-                                                                                            </tr>
-                                                                                            <tr>
+                                                                                        <tbody id="invoice">
+                                                                                            <!--<tr>
                                                                                                 <td colspan="2" rowspan="4">
                                                                                                     <h3 class="text-light opacity-50">Invoice Notes</h3>
                                                                                                     <p><small><a href="#!">Terms and Conditions</a></small></p>
@@ -725,7 +642,7 @@
                                                                                             <tr>
                                                                                                 <td class="text-right"><strong class="text-lg text-accent">Total</strong></td>
                                                                                                 <td class="text-right"><strong class="text-lg text-accent">$432.00</strong></td>
-                                                                                            </tr>
+                                                                                            </tr>-->
                                                                                         </tbody>
                                                                                     </table>
                                                                                 </div><!--end .col -->
@@ -740,8 +657,8 @@
                                                     </section>
                                                 </div>
                                                 <div class="modal-footer grey lighten-2">
-                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">CANCEL</button>
-                                                    <button type="button" class="btn green width-6 white-text" data-dismiss="modal">SUBLIT SERVICE REQUEST</button>
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="cancelServiceRequest">CANCEL</button>
+                                                    <button type="button" class="btn green width-6 white-text" data-dismiss="modal" id="sendVisitRequest">SUBMIT SERVICE REQUEST</button>
                                                 </div>
                                             </form>
                                         </div><!-- /.modal-content -->
@@ -751,8 +668,6 @@
 
                             </div>
                         </div>
-
-
                         <!--
 <ul class="timeline timeline-hairline collapse-lg" style="margin-bottom: 0;">
 <li class="timeline-inverted">

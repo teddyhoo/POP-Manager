@@ -1,15 +1,227 @@
 (function (namespace, $) {
     "use strict";
 
-    var all_visits;
-    var petOwnerProfile;
-    var surchargeItems;
-    var serviceList;
-    var timeWindowList;
+    var all_visits = [];
     var event_visits = [];
-    
+    var startDateService;
+    var endDateService;
+    var currentPetsChosen = {};
+    var currentTimeWindowBegin;
+    var currentTimeWindowEnd;
+    var currentServiceChosen;
+
+    function getTodayString(todayDate) {
+        let clickDay = new Date(todayDate);
+        let daysOfWeek = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+        let dayWeek = daysOfWeek[clickDay.getDay()];
+        return dayWeek;
+    }
+    function getTodayNum(todayDate) {
+        let clickDay = new Date(todayDate);
+        return clickDay.getDate()+1;
+    }
+    function getMonthString(todayDate) {
+        let clickDate = new Date(todayDate);
+        let months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        let monthString = months[clickDate.getMonth()];
+        return monthString;
+    }
+
     var LeashtimeCal = function () {
         var o = this;
+        var petOwnerProfile;
+        var surchargeItems =[];
+        var serviceList = [];
+        var timeWindowList =[];
+
+        function populateServiceList(serviceListItems) {
+
+            let serviceEl = document.getElementById('serviceList');
+
+            serviceListItems.forEach((serviceItem)=> {
+                let listEl = document.createElement('li');
+                listEl.setAttribute('class','tile lightgrey ui-draggable ui-draggable-handle padding');
+                listEl.setAttribute('data-class-name', 'event-info');
+                        
+                let divElTileContent = document.createElement('div');
+                divElTileContent.setAttribute('class', 'tile-content');
+
+                let divElTileText = document.createElement('div');
+                divElTileText.setAttribute('class','tileText');
+                divElTileText.setAttribute('id', serviceItem.serviceCode);
+                divElTileText.innerHTML = serviceItem.serviceName;
+
+                divElTileContent.appendChild(divElTileText);
+                listEl.appendChild(divElTileContent);
+                serviceEl.appendChild(listEl);
+            });
+        }
+        function chooseTimeWindow(event, beg, end) {
+            event.preventDefault();
+            currentTimeWindowBegin = beg;
+            currentTimeWindowEnd = end;
+        }
+        function chooseService(event, serviceID) {
+            event.preventDefault();
+            currentServiceChosen = serviceID;
+        }
+        function choosePet(event, petID) {
+
+            if(currentPetsChosen[petID] == 'on') {
+                currentPetsChosen[petID] = 'off';
+            } else  {
+                currentPetsChosen[petID] = 'on';
+            }
+        }
+
+        function processRequestService(event) {
+
+            let petKeys = Object.keys(currentPetsChosen);
+                petKeys.forEach((chosen) => {
+                console.log(chosen  + ' -> ' + currentPetsChosen[chosen]);
+            });
+
+            let invoice = document.getElementById('invoice');
+            let newRow = document.createElement('tr');
+            let newDateRow = document.createElement('td');
+            newDateRow.innerHTML = getMonthString(new Date(startDateService)) + ' ' +getTodayNum(new Date(startDateService));
+
+            let newServiceRow = document.createElement('td');
+            newServiceRow.setAttribute('class','text-center');
+            let newChargeRow = document.createElement('td');
+            newChargeRow.setAttribute('class','text-right');
+            serviceList.forEach((service)=> {
+                if (currentServiceChosen == service.serviceCode) {
+                    newServiceRow.innerHTML = service.serviceName;
+                    newChargeRow.innerHTML = service.serviceCharge;
+                }
+            });
+
+            let newTimeWindowRow = document.createElement('td');
+            newTimeWindowRow.setAttribute('class','text-right');
+            newTimeWindowRow.innerHTML = currentTimeWindowBegin + '-' + currentTimeWindowEnd;
+
+            newRow.appendChild(newDateRow);
+            newRow.appendChild(newServiceRow);
+            newRow.appendChild(newTimeWindowRow);
+            newRow.appendChild(newChargeRow);
+            invoice.appendChild(newRow);
+
+            let cancelVisitRequestButton = document.getElementById('cancelServiceRequest');
+            let sendVisitRequestButton = document.getElementById('sendVisitRequest');
+
+            cancelVisitRequestButton.addEventListener('click', function() {
+                if (invoice.hasChildNodes) {
+                    while(invoice.firstChild) {
+                        invoice.removeChild(invoice.firstChild);
+                    }
+                }
+            });
+
+            $('#formModal2').modal('show');
+
+
+        }
+        function makeServicePicker(serviceList, timeWindowList, petOwn) {
+
+            let servicePicker = document.getElementById('selectService');
+            let timeWindowPicker = document.getElementById('timeWindowPicker');
+            let todayDatePicker = document.getElementById('dateToday');
+            let petPicker = document.getElementById('petPicker')
+            let endDatePicker = document.getElementById('untilDate');
+            let requestVisit = document.getElementById('requestServiceButton');
+
+            requestVisit.addEventListener('click', function() {processRequestService(event); });
+
+            endDatePicker.innerHTML = 'End Date';
+            endDatePicker.addEventListener('mouseleave', function(e) {
+                endDateService = endDatePicker.value;
+                console.log(endDatePicker.value);
+            });
+
+            timeWindowList.forEach((tw)=> {
+                let timeWindow = document.createElement('a');
+                timeWindow.setAttribute('href', '#');
+                timeWindow.setAttribute('class', 'btn btn-default-bright');
+                timeWindow.setAttribute('type','checkbox');
+                timeWindow.setAttribute('role', 'checkbox');
+                timeWindow.addEventListener('click', function(){chooseTimeWindow(event, tw.begin, tw.endTW);});
+                timeWindow.innerHTML = tw.label;
+                timeWindowPicker.appendChild(timeWindow)
+            });
+
+            serviceList.forEach((service) => {
+                let serviceItem = document.createElement('a');
+                let breakTag = document.createElement('br');
+                serviceItem.setAttribute('href', '#');
+                serviceItem.setAttribute('class','btn btn-default-bright');
+                serviceItem.setAttribute('type','checkbox');
+                serviceItem.setAttribute('role', 'checkbox');
+                serviceItem.addEventListener('click', function() {chooseService(event, service.serviceCode);});
+                serviceItem.innerHTML = service.serviceName;
+                servicePicker.appendChild(serviceItem);
+            });
+
+            petOwn.pets.forEach((pet)=> {
+                let petInfo = document.createElement('a');
+                let breakTag = document.createElement('br');
+                petInfo.setAttribute('href','#');
+                petInfo.setAttribute('class','btn btn-default-bright');
+                petInfo.setAttribute('type','checkbox');
+                petInfo.setAttribute('role', 'checkbox');
+                petInfo.addEventListener('click', function() {choosePet(event, pet.petID)});
+                petInfo.innerHTML = pet.petName;
+                petPicker.appendChild(petInfo);
+
+            })
+        }
+        function createEvents(eventData, petOwnerInfo) {
+
+            console.log('Create events: ' + petOwnerInfo);
+            all_visits = LT.getVisits(eventData);
+            surchargeItems = LT.getSurchargeItems(eventData); 
+            serviceList = LT.getServiceItems(eventData);
+            timeWindowList = LT.getTimeWindows(eventData);
+
+            populateServiceList(serviceList);
+            makeServicePicker(serviceList, timeWindowList,petOwnerInfo);
+
+            all_visits.forEach((visit) => {
+            
+                let visitInfo = visit;
+                let eventTitle = visit.service;
+                let eventStart = visit.time_window_start;
+                let eventEnd = visit.time_window_end;
+                let eventDateStart = visit.date + ' ' + eventStart;
+                let eventDateEnd = visit.date + ' ' + eventEnd;
+                let visitColor = '';
+                let visitURL = '';
+
+                if(visit.status == 'canceled') {
+                    visitColor = 'red';
+                } else if (visit.status == 'completed') {
+                    visitColor = 'green';
+                    visitURL ='<LINK TO VISIT REPORT>';
+                } else if (visit.status  == 'future') {
+                    visitColor = 'blue';
+                } else if (visit.status == 'late') {
+                    visitColor = 'orange';
+                }
+
+                let event = {
+                    id : visitInfo.appointmentid,
+                    title: eventTitle,
+                    start : eventDateStart,
+                    end : eventDateEnd,
+                    color : visitColor,
+                    status : visitInfo.status,
+                    sitter: visitInfo.sitter,
+                };
+
+                event_visits.push(event);
+            });
+        }
+
         $(document).ready(function () {
             $.ajax({
                 "url" : "http://localhost:3300",
@@ -18,58 +230,18 @@
                 "dataTYPE" : "JSON"
             }).done((data)=> {
 
-                surchargeItems = LT.getSurchargeItems(data);
-                all_visits = LT.getVisits(data);
-                serviceList = LT.getServiceItems(data);
-                timeWindowList = LT.getTimeWindows(data);
-
-                all_visits.forEach((visit) => {
-                    let visitInfo = visit;
-                    let eventTitle = visit.service;
-                    let eventStart = visit.time_window_start;
-                    let eventEnd = visit.time_window_end;
-                    let eventDateStart = visit.date + ' ' + eventStart;
-                    let eventDateEnd = visit.date + ' ' + eventEnd;
-                    let visitColor = '';
-                    let visitURL = '';
-
-                    if(visit.status == 'canceled') {
-                        visitColor = 'red';
-                    } else if (visit.status == 'completed') {
-                        visitColor = 'green';
-                        visitURL ='<LINK TO VISIT REPORT>';
-                    } else if (visit.status  == 'future') {
-                        visitColor = 'blue';
-                    } else if (visit.status == 'late') {
-                        visitColor = 'orange';
-                    }
-
-                    let event = {
-                        id : visitInfo.appointmentid,
-                        title: eventTitle,
-                        start : eventDateStart,
-                        end : eventDateEnd,
-                        color : visitColor
-                    };
-
-                    event_visits.push(event);
-
-                });
-                o.initialize();
-            })
-
-            $.ajax({
-                  "url" : "http://localhost:3300",
-                  "type" : "GET",
-                  "data" : {"type" : "clients"},
-                  "dataTYPE" : "JSON"
-            }).done((clientdata)=>{
-                  petOwnerProfile = LT.getClientProfileInfo(clientdata);
-
-            })
-            
+                $.ajax({
+                    "url" : "http://localhost:3300",
+                    "type" : "GET",
+                    "data" : {"type" : "clients"},
+                    "dataTYPE" : "JSON"
+                }).done((clientdata)=>{
+                    petOwnerProfile = LT.getClientProfileInfo(clientdata);
+                    createEvents(data, petOwnerProfile);
+                    o.initialize();
+                 })
+            })            
         });
-
     };
     var p = LeashtimeCal.prototype;
     p.initialize = function () {
@@ -132,22 +304,8 @@
             return;
         }
         var o = this;
-        let serviceDiv = document.getElementById("serviceList");
-        serviceList.forEach((service) => {
-            //var eventObject ={
-            //    title: service.serviceName
-            //    className: serviceLI.data('className')
-           // };
-            /*$(this).data('eventObject',eventObject);
-            $(this).draggable({
-                zIndex: 999,
-                revert: true,
-                revertDuration: 0
-            });*/
-        });
 
         $('.list-events li ').each(function () {
-            console.log($(this).text());
             // create an Event Object
             // it doesn't need to have a start or end
             var eventObject = {
@@ -163,7 +321,6 @@
             });
         });
     };
-
     p._initCalendar = function (e) {
         if (!$.isFunction($.fn.fullCalendar)) {
             return;
@@ -173,8 +330,6 @@
         var d = date.getDate();
         var m = date.getMonth();
         var y = date.getFullYear();
-
-        //var event_visits = [];
         var calendar = $('#calendar').fullCalendar('getCalendar');
 
         calendar.fullCalendar({
@@ -184,70 +339,40 @@
             events: event_visits,
             editable : true,
 
-            /*select : function(start, end, allDay) {
-                var dialogTitle = $('#calCreateEventDialog').find('#eventDescription ').val().trim() != "" ? $('#eventDescription').val(): "Appointment";
-                $('#calCreateEventDialog').find('#eventTitle').val("Appointment");
-                $('#calCreateEventDialog').find('#eventDescription').html("<b>" + start.format("dddd, MMMM Do YYYY") + " from " + start.format("hh:mm a") + " to " + end.format("hh:mm a") + "</b>");
-                $('#calCreateEventDialog').data({ 'start':start, 'end':end });
-                $('#calCreateEventDialog').dialog({title: "Event: " + dialogTitle});
-                $('#calCreateEventDialog').dialog('open');
-            },
-
-            eventClick : function(event) {
-                $('#calModifyEventDialog').find('#eventDescription').html("<b>",event.start.format("dddd, MMMM Do YYYY") + " from " + event.start.format("hh:mm a") + " to " + event.end.format("hh:mm a") + "</b>");
-                $('#calModifyEventDialog').data({'event':event});
-                $('#calModifyEventDialog').dialog({title: "Event: " + event.title});
-                $('#calModifyEventDialog').find("#eventTitle").val(event.title);
-                $('#calModifyEventDialog').dialog('open');
-            },*/
-
             select: function(start, end, jsEvent, view) {
-                console.log('Selected day on Calendar');
+                let monthString = getMonthString(start);
+                let todayNum = getTodayNum(start);
+                let todayStr = getTodayString(start);
+                let dateElem = document.getElementById('dateToday');
+                dateElem.innerHTML =  todayStr + ' ' +monthString + ' ' + todayNum;
+                startDateService = new Date(start);
+                endDateService = new Date(end);
+                console.log('Start date: ' + startDateService +', end Date service: ' + endDateService);
                 $('#formModal').modal('show');
             },
 
             eventClick:  function(event, jsEvent, view) {
-                console.log('Event full calendar clicked: ' + event.id);
-                $('#formModal2').modal('show');
-                let visitInfoTag = document.getElementById("formModalLabelEdit");
+                console.log('Event full calendar clicked: ' + event.status);
+
                 all_visits.forEach((visit) => {
 
                     if (visit.appointmentid == event.id) {
-                        visitInfoTag.innerHTML = visit.date + ': ' + visit.service;
-                    }
+                        if (visit.status == 'completed') {
 
+                        } else if (visit.status == 'canceled') {
+
+                        } else if (visit.status == 'future' || visit.status == 'late') {
+
+                            $('#formModal2').modal('show');
+                            let visitInfoTag = document.getElementById("formModalLabelEdit");
+                        }
+                    }
                 });
                 
             },
-
-
-
-            /*select: function(start, end, jsEvent, view) {
-                    var title = prompt("Enter a title for this event", "New event");
-                    if (title != null) {
-                        var event = {
-                            title: title.trim() != "" ? title : "New event",
-                            start: start,
-                            end: end
-                        };
-                        calendar.fullCalendar("renderEvent", event, true);
-                    };
-                    calendar.fullCalendar("unselect");
-            }, */
-            /*eventClick: function(event, jsEvent, view){
-                var newTitle = prompt("Visit ID: ", event.id);
-
-                if (newTitle != null) {
-                    event.title = newTitle.trim() != "" ? newTitle : event.title;
-                    calendar.fullCalendar("updateEvent", event);
-                }
-            }, */
             eventRender: function(event, element){
 
-                console.log('Event render');
-
-                $(element).find(".fc-content").append("<div style='float:right'><a class='delete-link' href='javascript:remove_event(\""
-                        + event._id + "\")'>Delete</a></div>");
+                $(element).find(".fc-content").append("");
 
                 var $calendar = $("#calendar").fullCalendar("getCalendar");
 
@@ -259,9 +384,6 @@
                      }
                  }
             },
-            //eventRender: function (event, element) {
-            //   element.find('#date-title').html(element.find('span.fc-event-title').text());
-            //},
             views: {
                 basic: {
                   // options apply to basicWeek and basicDay views
@@ -301,36 +423,6 @@
     };
 
     var calendar = $('#calendar').fullCalendar('getCalendar');
-    //calendar.on('dayClick', function(date, jsEvent, view) {
-     //   console.log('clicked on ' + date.format());
-    //});
-
-    /*$('#calCreateEventDialog').dialog({
-        resizable: false,
-        autoOpen: false,
-        modal: true,
-        width: 500,
-        buttons: {
-            Create: function() {
-                
-               var event = {
-                    title: eventTitle != "" ? eventTitle: "Appointment",
-                    color: 'DeepSkyBlue',
-                    textColor: 'black',
-                    start: start.format(),
-                    end: end.format()
-                }
- 
-                $calendar.fullCalendar('renderEvent', event, true );
-                $calendar.fullCalendar('unselect');
-                $(this).dialog('close');
-            },
-            Cancel: function() {
-                $(this).dialog('close');
-            }
-        }
-    });*/
-
     namespace.LeashtimeCal = new LeashtimeCal;
 
 }(this.materialadmin, jQuery)); // pass in (namespace, jQuery):

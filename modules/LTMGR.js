@@ -210,9 +210,13 @@ var LTMGR = (function() {
 	function sendVisitReport(visitID) {
 
 	}
-	function getPetPhoto(petID) {
+	async function getPetPhoto(petID) {
 
 		let url = 'http://localhost:3300?type=getPetPic&petid='+petID;
+		let response = await fetch(url);
+		let imageData = await response.json();
+
+		
 		fetch(url)
 			.then((response) => {
 				return response.json();
