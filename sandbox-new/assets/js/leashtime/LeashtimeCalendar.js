@@ -10,22 +10,6 @@
     var currentTimeWindowEnd;
     var currentServiceChosen;
 
-    function getTodayString(todayDate) {
-        let clickDay = new Date(todayDate);
-        let daysOfWeek = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-        let dayWeek = daysOfWeek[clickDay.getDay()];
-        return dayWeek;
-    }
-    function getTodayNum(todayDate) {
-        let clickDay = new Date(todayDate);
-        return clickDay.getDate()+1;
-    }
-    function getMonthString(todayDate) {
-        let clickDate = new Date(todayDate);
-        let months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        let monthString = months[clickDate.getMonth()];
-        return monthString;
-    }
 
     var LeashtimeCal = function () {
         var o = this;
@@ -73,14 +57,8 @@
                 currentPetsChosen[petID] = 'on';
             }
         }
-
         function processRequestService(event) {
-
-            let petKeys = Object.keys(currentPetsChosen);
-                petKeys.forEach((chosen) => {
-                console.log(chosen  + ' -> ' + currentPetsChosen[chosen]);
-            });
-
+            let pickedService = '';
             let invoice = document.getElementById('invoice');
             let newRow = document.createElement('tr');
             let newDateRow = document.createElement('td');
@@ -93,6 +71,7 @@
             serviceList.forEach((service)=> {
                 if (currentServiceChosen == service.serviceCode) {
                     newServiceRow.innerHTML = service.serviceName;
+                    pickedService = service.serviceName;
                     newChargeRow.innerHTML = service.serviceCharge;
                 }
             });
@@ -118,9 +97,33 @@
                 }
             });
 
+            sendVisitRequestButton.addEventListener('click', function() {
+                if (invoice.hasChildNodes) {
+                    while(invoice.firstChild) {
+                        invoice.removeChild(invoice.firstChild);
+                    }
+                }
+
+                let dateTimeBegin = new Date(startDateService + ' ' + currentTimeWindowBegin);
+                console.log('Date time begin consolidated: ' + dateTimeBegin.getDate());
+
+                let event = {
+                    id : '000000',
+                    title: pickedService,
+                    start : dateTimeBegin,
+                    end : dateTimeBegin,
+                    color : 'orange',
+                    status : 'pending',
+                    sitter: 'unassigned',
+                }
+
+                event_visits.push(event);
+
+                $('#calendar').fullCalendar('renderEvent', event, true);
+
+            });
+
             $('#formModal2').modal('show');
-
-
         }
         function makeServicePicker(serviceList, timeWindowList, petOwn) {
 
@@ -188,34 +191,38 @@
 
             all_visits.forEach((visit) => {
             
-                let visitInfo = visit;
                 let eventTitle = visit.service;
                 let eventStart = visit.time_window_start;
                 let eventEnd = visit.time_window_end;
                 let eventDateStart = visit.date + ' ' + eventStart;
+                //console.log(visit.date);
                 let eventDateEnd = visit.date + ' ' + eventEnd;
+                //console.log('Event date start: ' + eventDateStart);
                 let visitColor = '';
                 let visitURL = '';
+
 
                 if(visit.status == 'canceled') {
                     visitColor = 'red';
                 } else if (visit.status == 'completed') {
                     visitColor = 'green';
                     visitURL ='<LINK TO VISIT REPORT>';
-                } else if (visit.status  == 'future') {
+                } else if (visit.status  == 'future' || visit.status == 'INCOMPLETE' || visit.status == 'incomplete') {
                     visitColor = 'blue';
                 } else if (visit.status == 'late') {
+                    visitColor = 'orange';
+                } else if (visit.status == 'pending') {
                     visitColor = 'orange';
                 }
 
                 let event = {
-                    id : visitInfo.appointmentid,
+                    id : visit.appointmentid,
                     title: eventTitle,
                     start : eventDateStart,
                     end : eventDateEnd,
                     color : visitColor,
-                    status : visitInfo.status,
-                    sitter: visitInfo.sitter,
+                    status : visit.status,
+                    sitter: visit.sitter,
                 };
 
                 event_visits.push(event);
@@ -229,7 +236,6 @@
                 "data" : {"type" : "visits"},
                 "dataTYPE" : "JSON"
             }).done((data)=> {
-
                 $.ajax({
                     "url" : "http://localhost:3300",
                     "type" : "GET",
@@ -269,7 +275,7 @@
         $('#form-modal2').on('click', function(e) {
             console.log('Calendar Modal clicked');
             o._clickModal(e);
-        });
+        });2
     };
     p._handleCalendarPrevClick = function (e) {
         $('#calendar').fullCalendar('prev');
@@ -330,6 +336,9 @@
         var d = date.getDate();
         var m = date.getMonth();
         var y = date.getFullYear();
+        var dayArrStr = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+        var monthsArrStr = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
         var calendar = $('#calendar').fullCalendar('getCalendar');
 
         calendar.fullCalendar({
@@ -348,23 +357,57 @@
                 startDateService = new Date(start);
                 endDateService = new Date(end);
                 console.log('Start date: ' + startDateService +', end Date service: ' + endDateService);
+
                 $('#formModal').modal('show');
             },
 
             eventClick:  function(event, jsEvent, view) {
                 console.log('Event full calendar clicked: ' + event.status);
+                let apptID = event.id;
+                let startDate = moment(event.start)
+                let dateString = startDate.date();
+                let dayOfWeek = startDate.day();
+                let monthStr= startDate.month();
+                let startHour = startDate.hour();
+                let startMin = startDate.minute();
+                if (startMin == 0) {
+                    startMin = '00';
+                }
+
+                let endDate = moment(event.end);
+                let endHour = endDate.hour();
+                let endMin = endDate.minute();
+                if (endMin == 0) {
+                    endMin = '00';
+                }
+                let apptStatus = event.status;
+
+                let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +'   ' + event.title + ' (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
+
+                let actionTitle = document.getElementById('scheduledVisitAction');
+                let cancelAction = document.getElementById('cancelVisitButton');
 
                 all_visits.forEach((visit) => {
 
                     if (visit.appointmentid == event.id) {
+
                         if (visit.status == 'completed') {
+                            actionTitle.innerHTML = titleString;
+                            cancelAction.innerHTML = 'SEE VISIT REPORT';
+                            $('#formModal2').modal('show');
 
                         } else if (visit.status == 'canceled') {
-
-                        } else if (visit.status == 'future' || visit.status == 'late') {
-
+                            actionTitle.innerHTML = titleString;
+                            cancelAction.innerHTML = 'UNCANCEL';
                             $('#formModal2').modal('show');
-                            let visitInfoTag = document.getElementById("formModalLabelEdit");
+
+                        } else if (visit.status == 'future' || visit.status == 'late' || visit.status == 'INCOMPLETE' || visit.status == 'incomplete') {
+                            actionTitle.innerHTML = titleString;
+                            $('#formModal2').modal('show');
+
+                        } else if (visit.status == 'pending') {
+
+
                         }
                     }
                 });
@@ -422,6 +465,22 @@
         });
     };
 
+    function getTodayString(todayDate) {
+        let clickDay = new Date(todayDate);
+        let daysOfWeek = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+        let dayWeek = daysOfWeek[clickDay.getDay()];
+        return dayWeek;
+    }
+    function getTodayNum(todayDate) {
+        let clickDay = new Date(todayDate);
+        return clickDay.getDate()+1;
+    }
+    function getMonthString(todayDate) {
+        let clickDate = new Date(todayDate);
+        let months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        let monthString = months[clickDate.getMonth()];
+        return monthString;
+    }
     var calendar = $('#calendar').fullCalendar('getCalendar');
     namespace.LeashtimeCal = new LeashtimeCal;
 

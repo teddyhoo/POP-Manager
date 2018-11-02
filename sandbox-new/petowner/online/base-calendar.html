@@ -563,15 +563,20 @@
                                             <!-- TITLE -->
                                             <div class="modal-header blue white-text">
                                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                <h4 class="modal-title" id="formModalLabelEdit">EDIT VISIT REQUEST:</h4>
+                                                <h4 class="modal-title" id="scheduledVisitAction"></h4>
                                             </div>
                                             <!-- FORM -->
                                             <form class="form-horizontal" role="form">
                                                 <div class="modal-body">
                                                 <div class="modal-footer grey lighten-2">
-                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">CANCEL REQUEST</button>
-                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">CHANGE SERVICE</button>
-                                                    <button type="button" class="btn green width-6 white-text" data-dismiss="modal" data-toggle="modal" data-target="#formModal3">REQUEST SERVICE</button>
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal" id='cancelVisitButton'>CANCEL ONLY THIS VISIT</button>
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal" id='cancelUntilVisitButton'>CANCEL ALL VISITS UNTIL</button>
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeServiceButton'>CHANGE SERVICE</button>
+       
+                                                    <div class="input-group-content">
+                                                            <input type="text" class="form-control" id='cancelChangeText'>
+                                                            <label>Note: </label>
+                                                    </div>
                                                 </div>
                                             </form>
                                         </div><!-- /.modal-content -->
